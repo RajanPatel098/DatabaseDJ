@@ -75,17 +75,56 @@ Using the `movies_db` database, write the correct SQL queries for each of these 
 
 11. The title of every movie along with the number of stars in
     that movie, in descending order by the number of stars.
-
+    - \``` SELECT title, COUNT(*) AS num_stars
+            FROM roles
+                INNER JOIN stars
+                ON roles.star_id = stars.id
+                INNER JOIN movies
+                ON roles.movie_id = movies.id
+                GROUP by movies.title
+                 ORDER by num_stars DESC;
 12. The first name, last name, and average runtime of the five
     stars whose movies have the longest average.
-
+    - \```  SELECT first_name, last_name, AVG(movies.runtime) AS avg_runtime
+                FROM roles
+                INNER JOIN stars
+                ON roles.star_id = stars.id
+                INNER JOIN movies
+                ON roles.movie_id = movies.id
+                GROUP by stars.first_name, stars.last_name
+                ORDER BY avg_runtime DESC
+                LIMIT 5; \```
 13. The first name, last name, and average runtime of the five
     stars whose movies have the longest average, among stars who have more than one movie in the database.
-
+    - \``` SELECT stars.first_name, stars.last_name, AVG(movies.runtime) AS avg_runtime
+            FROM stars
+            JOIN roles ON stars.id = roles.star_id
+            JOIN movies ON roles.movie_id = movies.id
+            WHERE stars.id IN (
+                SELECT star_id
+                FROM roles
+                GROUP BY star_id
+                HAVING COUNT(*) > 1
+            )
+            GROUP BY stars.id
+            ORDER BY avg_runtime DESC
+            LIMIT 5; \````
 14. The titles of all movies that don't feature any stars in our
     database.
-
+    -\``` SELECT title
+           FROM movies
+           WHERE id NOT IN(
+            SELECT movies_id
+            FROM roles
+            WHERE star_id IS NOT NULL
+           ); \````
 15. The first and last names of all stars that don't appear in any movies in our database.
-
+    - \``` SELECT first_name, last_name
+        FROM stars
+        WHERE id NOT IN (
+         SELECT star_id
+        FROM roles
+        WHERE movie_id IS NOT NULL
+            ); \````
 16. The first names, last names, and titles corresponding to every
     role in the database, along with every movie title that doesn't have a star, and the first and last names of every star not in a movie.
